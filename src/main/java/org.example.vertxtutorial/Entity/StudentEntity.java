@@ -1,4 +1,4 @@
-package Entity;
+package org.example.vertxtutorial.Entity;
 
 import lombok.*;
 

@@ -1,6 +1,5 @@
-package vertical;
+package org.example.vertxtutorial.vertical;
 
-import Entity.StudentEntity;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.EventBus;
@@ -10,6 +9,7 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import org.example.vertxtutorial.Entity.StudentEntity;
 
 
 import java.util.ArrayList;
