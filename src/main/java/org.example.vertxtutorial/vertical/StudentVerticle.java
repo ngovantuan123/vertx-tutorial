@@ -2,14 +2,13 @@ package org.example.vertxtutorial.vertical;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
-import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import org.example.vertxtutorial.Entity.StudentEntity;
+import org.example.vertxtutorial.service.StudentService;
 
 
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StudentVertical extends AbstractVerticle {
+    private StudentService studentService;
     private static HashMap students=new HashMap();
     public  void createExampleData()
     {
@@ -28,14 +28,9 @@ public class StudentVertical extends AbstractVerticle {
     }
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
-        EventBus eb = vertx.eventBus();
-
-        MessageConsumer<String> consumer = eb.consumer("news.uk.sport");
-        consumer.handler(message -> {
-            System.out.println("I have received a message: " + message.body());
-        });
         createExampleData();
-        Router router=Router.router(vertx);
+        this.studentService=StudentService.create(vertx);
+        final Router router=Router.router(vertx);
         router.get("/api/students").handler(this::getAllStudent);
         router.get("/api/students/:id").handler(this::getOneStudent);
         router.route("/api/students*").handler(BodyHandler.create());
