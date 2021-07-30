@@ -2,7 +2,7 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.example.vertxtutorial.DeployVertical;
+import org.example.vertxtutorial.DeployVerticle;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ public class MyTest {
     @Before
     public void setUp(TestContext context) {
         vertx = Vertx.vertx();
-        vertx.deployVerticle(DeployVertical.class.getName(),
+        vertx.deployVerticle(DeployVerticle.class.getName(),
                 context.asyncAssertSuccess());
     }
 

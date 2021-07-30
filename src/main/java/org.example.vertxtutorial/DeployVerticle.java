@@ -1,12 +1,14 @@
 package org.example.vertxtutorial;
 
 import io.vertx.core.Vertx;
-import org.example.vertxtutorial.vertical.StudentVertical;
+import org.example.vertxtutorial.service.StudentService;
+import org.example.vertxtutorial.vertical.StudentVerticle;
 
-public class DeployVertical {
+public class DeployVerticle {
     public static void main(String[] args) {
         Vertx vertx=Vertx.vertx();
-        vertx.deployVerticle(new StudentVertical());
+        StudentService studentService = StudentService.create(vertx);
+        vertx.deployVerticle(new StudentVerticle(studentService));
 
     }
 }

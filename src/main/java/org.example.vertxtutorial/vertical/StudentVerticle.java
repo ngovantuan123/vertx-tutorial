@@ -1,9 +1,9 @@
 package org.example.vertxtutorial.vertical;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -11,13 +11,16 @@ import org.example.vertxtutorial.Entity.StudentEntity;
 import org.example.vertxtutorial.service.StudentService;
 
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StudentVertical extends AbstractVerticle {
-    private StudentService studentService;
+public class StudentVerticle extends BaseRestVerticle {
+    private static final String SERVICE_NAME = "tuangh-rest-api";
+    private final StudentService studentService;
+
+    public StudentVerticle(StudentService studentService){
+        this.studentService=studentService;
+    }
     private static HashMap students=new HashMap();
     public  void createExampleData()
     {
@@ -29,14 +32,15 @@ public class StudentVertical extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
         createExampleData();
-        this.studentService=StudentService.create(vertx);
         final Router router=Router.router(vertx);
+        router.route().handler(BodyHandler.create());
         router.get("/api/students").handler(this::getAllStudent);
         router.get("/api/students/:id").handler(this::getOneStudent);
         router.route("/api/students*").handler(BodyHandler.create());
         router.post("/api/students").handler(this::insertNewStudent);
         router.put("/api/students").handler(this::updateOneStudent);
         router.delete("/api/students/:id").handler(this::deleteOneStudent);
+        router.post("/api/unregister").handler(this::unregisterNoti);
         vertx
                 .createHttpServer()
                 .requestHandler(router)
@@ -118,29 +122,30 @@ public class StudentVertical extends AbstractVerticle {
     }
 
     public void getAllStudent(RoutingContext routingContext){
-        HttpServerResponse response=routingContext.response();
-        response.putHeader("content-type","application/json;charset=UTF-8");
-        String sort = routingContext.request().getParam("sort");
-        if(sort != null && sort.equalsIgnoreCase("desc") ){
-            ArrayList sortedKeys = new ArrayList(students.keySet());
-            Collections.sort(sortedKeys);
-            if(sort.equalsIgnoreCase("desc"))
-            {
-                Collections.reverse(sortedKeys);
-            }
-            ArrayList sortEmployees=new ArrayList();
-            for (Object key : sortedKeys)
-            {
-                sortEmployees.add(students.get(key));
-            }
-            response.end(Json.encodePrettily(sortEmployees));
-        }
-        else if(sort != null && sort.equalsIgnoreCase("asc")) {
-
-        }
-        else {
-            response.end(Json.encodePrettily(students.values()));
-        }
+//        HttpServerResponse response=routingContext.response();
+//        response.putHeader("content-type","application/json;charset=UTF-8");
+//        String sort = routingContext.request().getParam("sort");
+//        if(sort != null && sort.equalsIgnoreCase("desc") ){
+//            ArrayList sortedKeys = new ArrayList(students.keySet());
+//            Collections.sort(sortedKeys);
+//            if(sort.equalsIgnoreCase("desc"))
+//            {
+//                Collections.reverse(sortedKeys);
+//            }
+//            ArrayList sortEmployees=new ArrayList();
+//            for (Object key : sortedKeys)
+//            {
+//                sortEmployees.add(students.get(key));
+//            }
+//            response.end(Json.encodePrettily(sortEmployees));
+//        }
+//        else if(sort != null && sort.equalsIgnoreCase("asc")) {
+//
+//        }
+//        else {
+//            response.end(Json.encodePrettily(students.values()));
+//        }
+        studentService.getAllStudent(this.resultHandlerNonEmpty(routingContext));
     }
     public void getOneStudent(RoutingContext routingContext){
         HttpServerResponse response=routingContext.response();
@@ -164,5 +169,12 @@ public class StudentVertical extends AbstractVerticle {
             response.end(Json.encodePrettily(responseBody));
         }
 
+    }
+    private void unregisterNoti(RoutingContext routingContext)  {
+        JsonObject body = new JsonObject(routingContext.getBody());
+        JsonObject responseBody= new JsonObject();
+        responseBody.put("stastus","200");
+        responseBody.put("message","unregister success");
+        studentService.unregisterNoti(body,this.resultVoidHandler(routingContext,responseBody));
     }
 }
