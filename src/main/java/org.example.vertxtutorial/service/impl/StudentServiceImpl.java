@@ -8,10 +8,12 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.example.vertxtutorial.Entity.StudentEntity;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
 import io.vertx.ext.web.client.WebClient;
+import org.example.vertxtutorial.utils.DateUtils;
 
 public class StudentServiceImpl implements org.example.vertxtutorial.service.StudentService {
     private Vertx vertx;
@@ -38,8 +40,10 @@ public class StudentServiceImpl implements org.example.vertxtutorial.service.Stu
         WebClient client = WebClient.create(vertx);
         JsonObject trace =new JsonObject();
         trace.put("RequestID", UUID.randomUUID().toString());
-        //trace.put("RequestDateTime", DateUtils.date2Str(new Date(), "yyyy-MM-dd") + "T" + DateUtils.date2Str(new Date(), "HH:mm:ss") + "Z");
-
+        trace.put("RequestDateTime", DateUtils.date2Str(new Date(), "yyyy-MM-dd") + "T" + DateUtils.date2Str(new Date(), "HH:mm:ss") + "Z");
+        trace.put("channelID","Dev");
+        trace.put("clientID","DevService");
+        body.put("trace",trace);
 
         try{
             client
