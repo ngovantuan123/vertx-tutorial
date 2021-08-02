@@ -172,9 +172,6 @@ public class StudentVerticle extends BaseRestVerticle {
     }
     private void unregisterNoti(RoutingContext routingContext)  {
         JsonObject body = new JsonObject(routingContext.getBody());
-        JsonObject responseBody= new JsonObject();
-        responseBody.put("stastus","200");
-        responseBody.put("message","unregister success");
-        studentService.unregisterNoti(body,this.resultVoidHandler(routingContext,responseBody));
+        studentService.unregisterNoti(body,this.resultHandlerNonEmpty(routingContext));
     }
 }

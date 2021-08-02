@@ -9,6 +9,7 @@ public class DeployVerticle {
         Vertx vertx=Vertx.vertx();
         StudentService studentService = StudentService.create(vertx);
         vertx.deployVerticle(new StudentVerticle(studentService));
+        System.out.println("deployed");
 
     }
 }

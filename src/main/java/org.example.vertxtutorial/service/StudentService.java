@@ -18,7 +18,7 @@ public interface StudentService {
         return new StudentServiceImpl(Vertx);
 
     }
-    void unregisterNoti(JsonObject body,Handler<AsyncResult<Void>> resultHandler );
+    void unregisterNoti(JsonObject body,Handler<AsyncResult<JsonObject>> resultHandler );
     void getAllStudent(Handler<AsyncResult<JsonObject>> resultHandler);
     void getOneStudent(String id,Handler<AsyncResult<JsonObject>> resultHandler);
     void insertOrUpdateStudent(JsonObject student,Handler<AsyncResult<Void>> asyncResultHandler);

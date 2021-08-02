@@ -9,11 +9,18 @@ import io.vertx.core.json.JsonObject;
 import org.example.vertxtutorial.Entity.StudentEntity;
 
 import java.util.HashMap;
+import java.util.UUID;
+
+import io.vertx.ext.web.client.WebClient;
 
 public class StudentServiceImpl implements org.example.vertxtutorial.service.StudentService {
-    private Vertx Vertx;
-    public StudentServiceImpl (Vertx Vertx){
-        this.Vertx =Vertx;
+    private Vertx vertx;
+    public static String SERVER_NOTI="192.168.57.18";
+    public static int PORT=7914;
+    public static String URL_API="/VietbankAPIs/v1/Noti/UnRegister";
+
+    public StudentServiceImpl (Vertx vertx){
+        this.vertx =vertx;
         createExampleData();
     }
     private static HashMap students=new HashMap();
@@ -26,14 +33,28 @@ public class StudentServiceImpl implements org.example.vertxtutorial.service.Stu
     }
 
     @Override
-    public void unregisterNoti(JsonObject body, Handler<AsyncResult<Void>> resultHandler)  {
+    public void unregisterNoti(JsonObject body, Handler<AsyncResult<JsonObject>> resultHandler)  {
         System.out.println("unregister");
+        WebClient client = WebClient.create(vertx);
+        JsonObject trace =new JsonObject();
+        trace.put("RequestID", UUID.randomUUID().toString());
+        //trace.put("RequestDateTime", DateUtils.date2Str(new Date(), "yyyy-MM-dd") + "T" + DateUtils.date2Str(new Date(), "HH:mm:ss") + "Z");
+
+
         try{
-
+            client
+                    .post(PORT, SERVER_NOTI, URL_API)
+                    .sendJsonObject(body)
+                    .onSuccess(res -> {
+                        // OK
+                        JsonObject jsonObject = res.body().toJsonObject();
+                        resultHandler.handle(Future.succeededFuture(jsonObject));
+                    })
+                    .onFailure(err ->
+                            resultHandler.handle(Future.failedFuture( err.getMessage())));
         }catch (Exception e){
-
+            resultHandler.handle(Future.failedFuture(e.getMessage()));
         }
-        resultHandler.handle(Future.succeededFuture());
     }
 
     @Override

@@ -54,7 +54,11 @@
             <artifactId>vertx-codegen</artifactId>
             <version>4.1.2</version>
         </dependency>
-
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web-client</artifactId>
+            <version>4.1.2</version>
+        </dependency>
 
     </dependencies>
 
