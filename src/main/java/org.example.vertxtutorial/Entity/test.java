@@ -2,21 +2,33 @@ package org.example.vertxtutorial.Entity;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.ResultSet;
+
+import java.util.List;
 
 public class test {
     public static void main(String[] args) {
-        WebClient client = WebClient.create(Vertx.vertx());
-        JsonObject body= new JsonObject();
-        client
-                .post(7914, "192.168.57.18", "/VietbankAPIs/v1/Noti/UnRegister")
-                .sendJsonObject(body)
-                .onSuccess(res -> {
-                    // OK
-                    JsonObject jsonObject = res.body().toJsonObject();
-                    System.out.println("ok");
-                })
-                .onFailure(err ->
-                         err.printStackTrace());
+        JsonObject dbConfig = new JsonObject();
+        Vertx vertx = Vertx.vertx();
+        dbConfig.put("url", "jdbc:oracle:thin:@//192.168.59.8:1521/tcbsweb");
+        dbConfig.put("driver_class", "oracle.jdbc.driver.OracleDriver");
+        dbConfig.put("user", "halong");
+        dbConfig.put("password", "halong");
+        JDBCClient dbClient = JDBCClient.create(vertx, dbConfig);
+        dbClient.query("select * from APIS_NOTI_REGISTER",queryRes -> {
+            if(queryRes.succeeded()){
+
+                ResultSet resultSet = queryRes.result();
+                List<JsonObject> rows = resultSet.getRows();
+
+                rows.forEach(System.out::println);
+
+            }else{
+                System.out.println ( "Error querying the database!");
+            }
+        });
+
+        System.out.println("ss");
     }
 }

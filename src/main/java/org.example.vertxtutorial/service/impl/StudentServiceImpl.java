@@ -4,92 +4,101 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.Json;
+import io.vertx.core.eventbus.DeliveryOptions;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
-import org.example.vertxtutorial.Entity.StudentEntity;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.UUID;
-
-import io.vertx.ext.web.client.WebClient;
-import org.example.vertxtutorial.utils.DateUtils;
 
 public class StudentServiceImpl implements org.example.vertxtutorial.service.StudentService {
     private Vertx vertx;
-    public static String SERVER_NOTI="192.168.57.18";
-    public static int PORT=7914;
-    public static String URL_API="/VietbankAPIs/v1/Noti/UnRegister";
-
     public StudentServiceImpl (Vertx vertx){
         this.vertx =vertx;
-        createExampleData();
     }
-    private static HashMap students=new HashMap();
-    public  void createExampleData()
-    {
-        students.put("1",new StudentEntity("1","1","1","1"));
-        students.put("2",new StudentEntity("2","2","1","1"));
-        students.put("3",new StudentEntity("3","3","1","1"));
-        students.put("4",new StudentEntity("4","4","1","1"));
-    }
+
 
     @Override
     public void unregisterNoti(JsonObject body, Handler<AsyncResult<JsonObject>> resultHandler)  {
         System.out.println("unregister");
-        WebClient client = WebClient.create(vertx);
-        JsonObject trace =new JsonObject();
-        trace.put("RequestID", UUID.randomUUID().toString());
-        trace.put("RequestDateTime", DateUtils.date2Str(new Date(), "yyyy-MM-dd") + "T" + DateUtils.date2Str(new Date(), "HH:mm:ss") + "Z");
-        trace.put("channelID","Dev");
-        trace.put("clientID","DevService");
-        body.put("trace",trace);
+        DeliveryOptions options = new DeliveryOptions();
+        System.out.println("[send] sending data in " + Thread.currentThread().getName());
+        this.vertx.eventBus().request("vietbank.noti.unregister", body, options, (res2) -> {
+            if (res2.succeeded()) {
+                System.out.println("Succ");
+                System.out.println("============>" + ((Message)res2.result()).body().toString());
+                resultHandler.handle(Future.succeededFuture((JsonObject)(res2.result()).body()));
+            } else {
+                System.out.println("failure");
+                resultHandler.handle(Future.failedFuture(res2.cause()));
+            }
 
-        try{
-            client
-                    .post(PORT, SERVER_NOTI, URL_API)
-                    .sendJsonObject(body)
-                    .onSuccess(res -> {
-                        // OK
-                        JsonObject jsonObject = res.body().toJsonObject();
-                        resultHandler.handle(Future.succeededFuture(jsonObject));
-                    })
-                    .onFailure(err ->
-                            resultHandler.handle(Future.failedFuture( err.getMessage())));
-        }catch (Exception e){
-            resultHandler.handle(Future.failedFuture(e.getMessage()));
-        }
+        });
     }
 
     @Override
     public void getAllStudent(Handler<AsyncResult<JsonObject>> resultHandler) {
-        if(students.isEmpty()){
-            resultHandler.handle(Future.succeededFuture());
-        }else{
-            JsonObject result = new JsonObject(Json.encode(students));
-            resultHandler.handle(Future.succeededFuture(result));
-        }
+        DeliveryOptions options = new DeliveryOptions();
+        this.vertx.eventBus().request("vietbank.student",new JsonObject().put("type","all"), options, (res2) -> {
+            if (res2.succeeded()) {
+                System.out.println("Succ");
+                System.out.println("============>" + ((Message)res2.result()).body().toString());
+                resultHandler.handle(Future.succeededFuture((JsonObject)(res2.result()).body()));
+            } else {
+                System.out.println("failure");
+                resultHandler.handle(Future.failedFuture(res2.cause()));
+            }
+
+        });
     }
 
     @Override
     public void getOneStudent(String id, Handler<AsyncResult<JsonObject>> resultHandler) {
+        DeliveryOptions options = new DeliveryOptions();
+        this.vertx.eventBus().request("vietbank.student",new JsonObject().put("type","one").put("id",id), options, (res2) -> {
+            if (res2.succeeded()) {
+                System.out.println("Succ");
+                if(res2.result().body() ==null){
+                    resultHandler.handle(Future.succeededFuture());
+                }else{
+                    System.out.println("============>" + ((Message)res2.result()).body().toString());
+                    resultHandler.handle(Future.succeededFuture((JsonObject)(res2.result()).body()));
+                }
 
-            StudentEntity studentFound = (StudentEntity) students.get(id);
-            if(studentFound == null){
-                resultHandler.handle(Future.succeededFuture());
-            }else{
-                JsonObject result = new JsonObject(Json.encode(studentFound));
-                resultHandler.handle(Future.succeededFuture(result));
+            } else {
+                System.out.println("failure");
+                resultHandler.handle(Future.failedFuture(res2.cause()));
             }
+        });
     }
 
     @Override
-    public void insertOrUpdateStudent(JsonObject student, Handler<AsyncResult<Void>> asyncResultHandler) {
+    public void insertOrUpdateStudent(JsonObject student, Handler<AsyncResult<Void>> resultHandler) {
+        DeliveryOptions options = new DeliveryOptions();
+        JsonObject message = new JsonObject().put("type","insert/update").put("data",student);
+        this.vertx.eventBus().request("vietbank.student",message, options, (res2) -> {
+            if (res2.succeeded()) {
+                System.out.println("Succ");
+                    System.out.println("============>" + ((Message)res2.result()).body().toString());
+                    resultHandler.handle(Future.succeededFuture());
+            } else {
+                System.out.println("failure");
+                resultHandler.handle(Future.failedFuture(res2.cause()));
+            }
 
+        });
     }
 
     @Override
     public void deleteOneStudent(String id, Handler<AsyncResult<Void>> resultHandler) {
+        DeliveryOptions options = new DeliveryOptions();
+        JsonObject message = new JsonObject().put("type","delete").put("id",id);
+        this.vertx.eventBus().request("vietbank.student",message, options, (res2) -> {
+            if (res2.succeeded()) {
+                System.out.println("Succ");
+                resultHandler.handle(Future.succeededFuture());
+            } else {
+                System.out.println("failure");
+                resultHandler.handle(Future.failedFuture(res2.cause()));
+            }
 
+        });
     }
 }

@@ -1,0 +1,10 @@
+{
+  "http": {
+    "port": 8080
+  },
+  "db": {
+    "url": "jdbc:oracle:thin:@//192.168.59.8:1521/tcbsweb",
+    "user": "halong",
+    "password":"halong"
+}
+}
