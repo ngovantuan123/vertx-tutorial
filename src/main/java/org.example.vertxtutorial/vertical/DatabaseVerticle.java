@@ -1,7 +1,6 @@
 package org.example.vertxtutorial.vertical;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -11,7 +10,6 @@ import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.ResultSet;
 import org.example.vertxtutorial.utils.DBUtils;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +17,7 @@ public class DatabaseVerticle extends AbstractVerticle {
     private JDBCClient client;
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
-        client= new DBUtils(this.vertx).getJdbcClient();
+        client= new DBUtils(this.vertx,config().getJsonObject("db")).getJdbcClient();
         MessageConsumer<JsonObject> consumer =  vertx.eventBus().consumer("vietbank.student");
         consumer.handler(message -> {
             System.out.println("received a message: " + message.body());
