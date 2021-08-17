@@ -1,0 +1,89 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Student API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/noti/unegister": {
+      "post": {
+        "operationId": "unregisterNoti",
+        "x-vertx-event-bus": "student_manager.myapp",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnregisterRequestModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "500": {
+            "description": "Something wrong happened"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "trace": {
+        "type": "object",
+        "properties": {
+          "requestID":{
+            "type": "string"
+          },
+          "requestDateTime": {
+            "type": "string"
+          },
+          "channelID": {
+            "type": "string"
+          },
+          "clientID": {
+            "type": "string"
+          }
+        }
+      },"data": {
+        "type": "object",
+        "properties": {
+          "cifNo":{
+            "type": "string"
+          },
+          "accountNo": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "notiType": {
+            "type": "string"
+          }
+        }
+      },
+      "UnregisterRequestModel": {
+        "type": "object",
+        "properties": {
+          "trace": {
+            "$ref": "#/components/schemas/trace"
+          },
+          "data": {
+            "$ref": "#/components/schemas/data"
+          },
+          "signature": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "trace",
+          "data"
+        ]
+      }
+    }
+  }
+}

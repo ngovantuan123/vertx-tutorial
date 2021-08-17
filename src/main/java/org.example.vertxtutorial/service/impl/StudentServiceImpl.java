@@ -7,6 +7,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.api.service.ServiceRequest;
+import io.vertx.ext.web.api.service.ServiceResponse;
+import io.vertx.ext.web.handler.HttpException;
 
 public class StudentServiceImpl implements org.example.vertxtutorial.service.StudentService {
     private Vertx vertx;
@@ -16,7 +19,7 @@ public class StudentServiceImpl implements org.example.vertxtutorial.service.Stu
 
 
     @Override
-    public void unregisterNoti(JsonObject body, Handler<AsyncResult<JsonObject>> resultHandler)  {
+    public void unregisterNoti(JsonObject body, ServiceRequest request, Handler<AsyncResult<ServiceResponse>> resultHandler)  {
         System.out.println("unregister");
         DeliveryOptions options = new DeliveryOptions();
         System.out.println("[send] sending data in " + Thread.currentThread().getName());
@@ -24,9 +27,10 @@ public class StudentServiceImpl implements org.example.vertxtutorial.service.Stu
             if (res2.succeeded()) {
                 System.out.println("Succ");
                 System.out.println("============>" + ((Message)res2.result()).body().toString());
-                resultHandler.handle(Future.succeededFuture((JsonObject)(res2.result()).body()));
+                resultHandler.handle(Future.succeededFuture(ServiceResponse.completedWithJson((JsonObject)(res2.result()).body())));
             } else {
                 System.out.println("failure");
+                new HttpException(500, "Something bad happened");
                 resultHandler.handle(Future.failedFuture(res2.cause()));
             }
 

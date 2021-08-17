@@ -11,7 +11,6 @@ import io.vertx.core.json.JsonObject;
 import org.example.vertxtutorial.service.StudentService;
 import org.example.vertxtutorial.vertical.DatabaseVerticle;
 import org.example.vertxtutorial.vertical.NotiVerticle;
-import org.example.vertxtutorial.vertical.StudentVerticle;
 
 public class DeployVerticle {
     public static void main(String[] args) {
@@ -28,7 +27,7 @@ public class DeployVerticle {
                     DeploymentOptions ops =new DeploymentOptions().setConfig(new JsonObject());
                     System.out.println(jsonObjectAsyncResult.result().toString());
                     StudentService studentService = StudentService.create(vertx);
-                    Future<String> student =Future.future(promise ->vertx.deployVerticle(new StudentVerticle(studentService),new DeploymentOptions().setConfig(jsonObjectAsyncResult.result())) );
+                    //Future<String> student =Future.future(promise ->vertx.deployVerticle(new StudentVerticle(studentService),new DeploymentOptions().setConfig(jsonObjectAsyncResult.result())) );
                     Future<String> noti =Future.future(promise ->vertx.deployVerticle(new NotiVerticle(),new DeploymentOptions().setConfig(jsonObjectAsyncResult.result()).setWorker(true)) );
                     Future<String> db =Future.future(promise ->vertx.deployVerticle(new DatabaseVerticle(),new DeploymentOptions().setConfig(jsonObjectAsyncResult.result())) );
                 }else {
