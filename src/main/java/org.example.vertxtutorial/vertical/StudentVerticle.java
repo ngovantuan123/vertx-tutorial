@@ -26,6 +26,7 @@ import java.util.Map;
 
 public class StudentVerticle extends BaseRestVerticle {
     private static final String SERVICE_NAME = "tuangh-rest-api";
+    private JsonObject config;
     private final StudentService studentService;
     private JWTAuth provider;
     private JWTAuthOptions jwtOpsAccessToken;
@@ -37,16 +38,16 @@ public class StudentVerticle extends BaseRestVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) throws Exception {
-
+        config=config();
         final Router router = Router.router(vertx);
         jwtOpsAccessToken =new JWTAuthOptions()
                 .addPubSecKey(new PubSecKeyOptions()
                         .setAlgorithm("HS256")
-                        .setBuffer("mypassword"));
+                        .setBuffer(config().getJsonObject("jwt").getString("accessToken_secret")));
         jwtOpsRefreshToken=new JWTAuthOptions()
                 .addPubSecKey(new PubSecKeyOptions()
                         .setAlgorithm("HS256")
-                        .setBuffer("tuangh-refresh-token"));
+                        .setBuffer(config().getJsonObject("jwt").getString("refreshToken_secret")));
         //secure all api
         provider = JWTAuth.create(vertx,jwtOpsAccessToken);
         providerForRefreshToken=JWTAuth.create(vertx,jwtOpsRefreshToken);
@@ -84,7 +85,7 @@ public class StudentVerticle extends BaseRestVerticle {
         vertx
                 .createHttpServer()
                 .requestHandler(router)
-                .listen(config().getInteger("http.port", 8080),
+                .listen(config().getInteger("http.port", config().getJsonObject("http").getInteger("port")),
                         result -> {
                             if (result.succeeded()) {
                                 startPromise.complete();
@@ -113,8 +114,9 @@ public class StudentVerticle extends BaseRestVerticle {
                 //authorities.add("admin");
                 authorities.add("user");
                 accesstoken=provider.generateToken(new JsonObject().put("sub",userName),
-                        new JWTOptions().setExpiresInMinutes(120).setPermissions(authorities));
-                refreshToken=providerForRefreshToken.generateToken(new JsonObject().put("sub",userName));
+                        new JWTOptions().setExpiresInMinutes(config.getJsonObject("jwt").getInteger("accessTokenExpiredTime")).setPermissions(authorities));
+                refreshToken=providerForRefreshToken.generateToken(new JsonObject().put("sub",userName),
+                        new JWTOptions().setExpiresInMinutes(config.getJsonObject("jwt").getInteger("refreshTokenExpiredTime")));
                 responseBody.put("accessToken","Bearer "+accesstoken);
                 responseBody.put("refreshToken","Bearer "+refreshToken);
                 response.end(Json.encodePrettily(responseBody));

@@ -1,10 +1,18 @@
 {
   "http": {
-    "port": 8080
+    "port": 8081
+  },
+  "jwt": {
+    "accessToken_secret": "mypassword",
+    "refreshToken_secret": "tuangh-refresh-token",
+    "accessTokenExpiredTime": 120,
+    "refreshTokenExpiredTime": 10080
+
   },
   "db": {
     "url": "jdbc:oracle:thin:@//192.168.59.8:1521/tcbsweb",
     "user": "halong",
-    "password":"halong"
+    "password":"halong",
+    "driver_class": "oracle.jdbc.driver.OracleDriver"
 }
 }
